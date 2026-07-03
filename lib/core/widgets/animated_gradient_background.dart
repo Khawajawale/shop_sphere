@@ -43,7 +43,7 @@ class _AnimatedGradientBackgroundState
 
     return AnimatedBuilder(
       animation: _controller,
-      builder: (_, __) {
+      builder: (_, _) {
         final value = _controller.value;
 
         return Container(
