@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_sizes.dart';
+import '../../../../core/widgets/animated_logo.dart';
 
 class AuthHeader extends StatelessWidget {
   final String title;
@@ -14,36 +19,48 @@ class AuthHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final isDark =
+        Theme.of(context).brightness == Brightness.dark;
 
     return Column(
       children: [
-        Hero(
-          tag: 'app_logo',
-          child: Image.asset(
-            logoPath,
-            height: 90,
-          ),
+        AnimatedLogo(
+          assetPath: logoPath,
+          size: 115,
         ),
 
-        const SizedBox(height: 32),
+        const SizedBox(height: AppSizes.spacingXL),
 
         Text(
           title,
           textAlign: TextAlign.center,
-          style: theme.textTheme.headlineMedium?.copyWith(
+          style: GoogleFonts.poppins(
+            fontSize: 30,
             fontWeight: FontWeight.w700,
+            color: isDark
+                ? Colors.white
+                : AppColors.textPrimary,
+            height: 1.15,
           ),
         ),
 
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSizes.spacingS),
 
-        Text(
-          subtitle,
-          textAlign: TextAlign.center,
-          style: theme.textTheme.bodyLarge?.copyWith(
-            color: Colors.grey.shade600,
-            height: 1.5,
+        ConstrainedBox(
+          constraints: const BoxConstraints(
+            maxWidth: 320,
+          ),
+          child: Text(
+            subtitle,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.inter(
+              fontSize: 15,
+              fontWeight: FontWeight.w400,
+              color: isDark
+                  ? Colors.white70
+                  : AppColors.textSecondary,
+              height: 1.6,
+            ),
           ),
         ),
       ],
