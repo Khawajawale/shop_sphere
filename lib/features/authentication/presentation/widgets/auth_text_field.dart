@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_sizes.dart';
+
 class AuthTextField extends StatelessWidget {
   final TextEditingController controller;
   final String label;
@@ -20,60 +23,79 @@ class AuthTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final isDark =
+        Theme.of(context).brightness == Brightness.dark;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      validator: validator,
 
-        Text(
-          label,
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w600,
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hint,
+
+        prefixIcon: Icon(
+          prefixIcon,
+          color: AppColors.primary,
+        ),
+
+        filled: true,
+
+        fillColor: isDark
+            ? Colors.white.withValues(alpha: .06)
+            : Colors.white,
+
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 20,
+        ),
+
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(
+            AppSizes.radius,
+          ),
+          borderSide: BorderSide.none,
+        ),
+
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(
+            AppSizes.radius,
+          ),
+          borderSide: BorderSide(
+            color: Colors.grey.shade300,
           ),
         ),
 
-        const SizedBox(height: 8),
-
-        TextFormField(
-          controller: controller,
-          keyboardType: keyboardType,
-          validator: validator,
-
-          decoration: InputDecoration(
-            hintText: hint,
-
-            prefixIcon: Icon(prefixIcon),
-
-            filled: true,
-
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-
-            focusedErrorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 20,
-              vertical: 18,
-            ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(
+            AppSizes.radius,
+          ),
+          borderSide: const BorderSide(
+            color: AppColors.primary,
+            width: 2,
           ),
         ),
-      ],
+
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(
+            AppSizes.radius,
+          ),
+          borderSide: const BorderSide(
+            color: Colors.red,
+          ),
+        ),
+
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(
+            AppSizes.radius,
+          ),
+          borderSide: const BorderSide(
+            color: Colors.red,
+            width: 2,
+          ),
+        ),
+      ),
     );
   }
 }
