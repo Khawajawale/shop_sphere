@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import 'package:go_router/go_router.dart';
+import 'package:shop_sphere/core/services/local_storage_service.dart';
+import 'package:shop_sphere/routes/route_names.dart';
 import '../../data/models/onboarding_data.dart';
 import '../controllers/onboarding_controller.dart';
 import '../providers/onboarding_provider.dart';
-import '../widgets/onboarding_card.dart';
 import '../widgets/next_button.dart';
-import '../widgets/skip_button.dart';
+import '../widgets/onboarding_card.dart';
 import '../widgets/page_indicator.dart';
+import '../widgets/skip_button.dart';
 
 class OnboardingPage extends ConsumerStatefulWidget {
   const OnboardingPage({super.key});
@@ -17,9 +19,10 @@ class OnboardingPage extends ConsumerStatefulWidget {
       _OnboardingPageState();
 }
 
-class _OnboardingPageState
-    extends ConsumerState<OnboardingPage> {
+class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   late final OnboardingController controller;
+
+  final LocalStorageService _storage = LocalStorageService();
 
   @override
   void initState() {
@@ -33,6 +36,20 @@ class _OnboardingPageState
     super.dispose();
   }
 
+  Future<void> _onNextPressed(int currentPage) async {
+    final isLastPage = currentPage == onboardingPages.length - 1;
+
+    if (isLastPage) {
+      await _storage.setOnboardingCompleted();
+
+      if (!mounted) return;
+
+      context.go(RouteNames.login);
+    } else {
+      controller.nextPage(currentPage);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final currentPage = ref.watch(currentPageProvider);
@@ -41,13 +58,15 @@ class _OnboardingPageState
       body: SafeArea(
         child: Column(
           children: [
-
             Align(
               alignment: Alignment.centerRight,
-              child: SkipButton(
-                onPressed: () {
-                  controller.jumpToLastPage();
-                },
+              child: Padding(
+                padding: const EdgeInsets.only(right: 16, top: 8),
+                child: SkipButton(
+                  onPressed: () {
+                    controller.jumpToLastPage();
+                  },
+                ),
               ),
             ),
 
@@ -55,13 +74,10 @@ class _OnboardingPageState
               child: PageView.builder(
                 controller: controller.pageController,
                 itemCount: onboardingPages.length,
-
                 onPageChanged: (index) {
-                  ref.read(currentPageProvider.notifier).state =
-                      index;
+                  ref.read(currentPageProvider.notifier).state = index;
                 },
-
-                itemBuilder: (_, index) {
+                itemBuilder: (context, index) {
                   final page = onboardingPages[index];
 
                   return OnboardingCard(
@@ -86,27 +102,12 @@ class _OnboardingPageState
             const SizedBox(height: 30),
 
             Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 24,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24),
               child: NextButton(
-                text: currentPage == 2
-                    ? "Get Started"
-                    : "Next",
-
-                onPressed: () {
-
-                  if (currentPage == 2) {
-
-                    // SharedPreferences
-                    // Navigate Login
-
-                  } else {
-
-                    controller.nextPage(currentPage);
-
-                  }
-                },
+                text: currentPage == onboardingPages.length - 1
+                    ? 'Get Started'
+                    : 'Next',
+                onPressed: () => _onNextPressed(currentPage),
               ),
             ),
 

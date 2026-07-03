@@ -24,15 +24,19 @@ class OnboardingCard extends StatelessWidget {
           children: [
             Expanded(
               flex: 6,
-              child: Image.asset(
-                image,
-                fit: BoxFit.contain,
-                errorBuilder: (_, _, _) {
-                  return const Icon(
-                    Icons.image_outlined,
-                    size: 150,
-                  );
-                },
+              child: Center(
+                child: Image.asset(
+                  image,
+                  width: 260,
+                  height: 260,
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, _, _) {
+                    return const Icon(
+                      Icons.image_outlined,
+                      size: 200,
+                    );
+                  },
+                ),
               ),
             ),
             const SizedBox(height: 30),
