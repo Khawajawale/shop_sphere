@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:shop_sphere/core/constants/app_assets.dart';
-import 'package:shop_sphere/core/services/local_storage_service.dart';
+import 'package:shop_sphere/core/services/firebase_service.dart';
 import 'package:shop_sphere/routes/route_names.dart';
 
 class SplashPage extends StatefulWidget {
@@ -13,8 +13,6 @@ class SplashPage extends StatefulWidget {
 }
 
 class _SplashPageState extends State<SplashPage> {
-  final LocalStorageService _storage = LocalStorageService();
-
   @override
   void initState() {
     super.initState();
@@ -25,16 +23,12 @@ class _SplashPageState extends State<SplashPage> {
     // Keep the splash screen visible for at least 3 seconds.
     await Future.delayed(const Duration(seconds: 3));
 
-    // Read the onboarding status from local storage.
-    final bool onboardingCompleted =
-        await _storage.isOnboardingCompleted();
-
     if (!mounted) return;
 
-    if (onboardingCompleted) {
-      // Later, this will check Firebase Authentication
-      // and navigate to either Home or Login.
-      context.go(RouteNames.login);
+    final bool hasAccount = FirebaseService.auth.currentUser != null;
+
+    if (hasAccount) {
+      context.go(RouteNames.home);
     } else {
       context.go(RouteNames.onboarding);
     }

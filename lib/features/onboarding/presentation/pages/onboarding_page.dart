@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shop_sphere/core/services/local_storage_service.dart';
 import 'package:shop_sphere/routes/route_names.dart';
 import '../../data/models/onboarding_data.dart';
 import '../controllers/onboarding_controller.dart';
@@ -22,8 +21,6 @@ class OnboardingPage extends ConsumerStatefulWidget {
 class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   late final OnboardingController controller;
 
-  final LocalStorageService _storage = LocalStorageService();
-
   @override
   void initState() {
     super.initState();
@@ -36,15 +33,15 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
     super.dispose();
   }
 
+  void _goToLogin() {
+    context.go(RouteNames.login);
+  }
+
   Future<void> _onNextPressed(int currentPage) async {
     final isLastPage = currentPage == onboardingPages.length - 1;
 
     if (isLastPage) {
-      await _storage.setOnboardingCompleted();
-
-      if (!mounted) return;
-
-      context.go(RouteNames.login);
+      _goToLogin();
     } else {
       controller.nextPage(currentPage);
     }
@@ -63,9 +60,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
               child: Padding(
                 padding: const EdgeInsets.only(right: 16, top: 8),
                 child: SkipButton(
-                  onPressed: () {
-                    controller.jumpToLastPage();
-                  },
+                  onPressed: _goToLogin,
                 ),
               ),
             ),
