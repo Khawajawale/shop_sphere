@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/widgets/animated_gradient_background.dart';
+import '../../../../core/widgets/glass_container.dart';
 import '../../../../routes/route_names.dart';
+
 import '../widgets/auth_footer.dart';
 import '../widgets/auth_header.dart';
 import '../widgets/auth_password_field.dart';
@@ -21,6 +24,8 @@ class _LoginPageState extends State<LoginPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
+  bool isLoading = false;
+
   @override
   void dispose() {
     emailController.dispose();
@@ -33,11 +38,12 @@ class _LoginPageState extends State<LoginPage> {
       return 'Please enter your email';
     }
 
-    final emailRegex =
-        RegExp(r'^[^@]+@[^@]+\.[^@]+');
+    final emailRegex = RegExp(
+      r'^[^@]+@[^@]+\.[^@]+',
+    );
 
     if (!emailRegex.hasMatch(value.trim())) {
-      return 'Enter a valid email address';
+      return 'Enter a valid email';
     }
 
     return null;
@@ -55,84 +61,164 @@ class _LoginPageState extends State<LoginPage> {
     return null;
   }
 
-  void login() {
+  Future<void> login() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
 
-    // Firebase login comes in the next phase.
+    setState(() => isLoading = true);
+
+    // Firebase login will be connected later.
+
+    await Future.delayed(
+      const Duration(seconds: 1),
+    );
+
+    if (!mounted) return;
+
+    setState(() => isLoading = false);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: GestureDetector(
-          onTap: () => FocusScope.of(context).unfocus(),
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 24,
-              vertical: 32,
-            ),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  const AuthHeader(
-                    logoPath: 'assets/images/logo.png',
-                    title: 'Welcome Back',
-                    subtitle:
-                        'Sign in to continue shopping with ShopSphere.',
+    final keyboardOpen =
+        MediaQuery.of(context).viewInsets.bottom > 0;
+
+    return AnimatedGradientBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        resizeToAvoidBottomInset: true,
+
+        body: SafeArea(
+          child: GestureDetector(
+            onTap: () =>
+                FocusScope.of(context).unfocus(),
+
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  physics: keyboardOpen
+                      ? const BouncingScrollPhysics()
+                      : const NeverScrollableScrollPhysics(),
+
+                  padding: EdgeInsets.only(
+                    left: 24,
+                    right: 24,
+                    top: 24,
+                    bottom:
+                        MediaQuery.of(context)
+                                .viewInsets
+                                .bottom +
+                            24,
                   ),
 
-                  const SizedBox(height: 40),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight:
+                          constraints.maxHeight - 48,
+                    ),
 
-                  AuthTextField(
-                    controller: emailController,
-                    label: 'Email',
-                    hint: 'Enter your email',
-                    prefixIcon: Icons.email_outlined,
-                    keyboardType: TextInputType.emailAddress,
-                    validator: emailValidator,
-                  ),
+                    child: IntrinsicHeight(
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 10),
 
-                  const SizedBox(height: 20),
+                          const AuthHeader(
+                            logoPath:
+                                'assets/images/logo.png',
+                            title: "Welcome Back",
+                            subtitle:
+                                "Sign in to continue shopping with ShopSphere.",
+                          ),
 
-                  AuthPasswordField(
-                    controller: passwordController,
-                    label: 'Password',
-                    hint: 'Enter your password',
-                    validator: passwordValidator,
-                  ),
+                          const SizedBox(height: 40),
 
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: () {
-                        context.push(RouteNames.forgotPassword);
-                      },
-                      child: const Text('Forgot Password?'),
+                          GlassContainer(
+                            child: Form(
+                              key: _formKey,
+                              child: Column(
+                                children: [
+                                  AuthTextField(
+                                    controller:
+                                        emailController,
+                                    label:
+                                        "Email Address",
+                                    hint:
+                                        "Enter your email",
+                                    prefixIcon:
+                                        Icons.email_outlined,
+                                    keyboardType:
+                                        TextInputType
+                                            .emailAddress,
+                                    validator:
+                                        emailValidator,
+                                  ),
+
+                                  const SizedBox(
+                                      height: 20),
+
+                                  AuthPasswordField(
+                                    controller:
+                                        passwordController,
+                                    label: "Password",
+                                    hint:
+                                        "Enter your password",
+                                    validator:
+                                        passwordValidator,
+                                  ),
+
+                                  Align(
+                                    alignment:
+                                        Alignment
+                                            .centerRight,
+                                    child: TextButton(
+                                      onPressed: () {
+                                        context.push(
+                                          RouteNames
+                                              .forgotPassword,
+                                        );
+                                      },
+                                      child: const Text(
+                                        "Forgot Password?",
+                                      ),
+                                    ),
+                                  ),
+
+                                  const SizedBox(
+                                      height: 12),
+
+                                  PrimaryAuthButton(
+                                    text: "Sign In",
+                                    isLoading:
+                                        isLoading,
+                                    onPressed: login,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                          const Spacer(),
+
+                          AuthFooter(
+                            text:
+                                "Don't have an account? ",
+                            actionText:
+                                "Create Account",
+                            onPressed: () {
+                              context.push(
+                                RouteNames.register,
+                              );
+                            },
+                          ),
+
+                          const SizedBox(height: 18),
+                        ],
+                      ),
                     ),
                   ),
-
-                  const SizedBox(height: 20),
-
-                  PrimaryAuthButton(
-                    text: 'Sign In',
-                    onPressed: login,
-                  ),
-
-                  const SizedBox(height: 30),
-
-                  AuthFooter(
-                    text: "Don't have an account? ",
-                    actionText: "Create Account",
-                    onPressed: () {
-                      context.push(RouteNames.register);
-                    },
-                  ),
-                ],
-              ),
+                );
+              },
             ),
           ),
         ),
