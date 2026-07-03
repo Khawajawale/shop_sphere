@@ -27,7 +27,7 @@ class OnboardingCard extends StatelessWidget {
               child: Image.asset(
                 image,
                 fit: BoxFit.contain,
-                errorBuilder: (_, __, ___) {
+                errorBuilder: (_, _, _) {
                   return const Icon(
                     Icons.image_outlined,
                     size: 150,
