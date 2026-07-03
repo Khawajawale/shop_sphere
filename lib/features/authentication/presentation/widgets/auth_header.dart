@@ -9,12 +9,22 @@ class AuthHeader extends StatelessWidget {
   final String title;
   final String subtitle;
   final String logoPath;
+  final double logoSize;
+  final double titleFontSize;
+  final double subtitleFontSize;
+  final double logoBottomSpacing;
+  final bool showLogo;
 
   const AuthHeader({
     super.key,
     required this.title,
     required this.subtitle,
     required this.logoPath,
+    this.logoSize = 115,
+    this.titleFontSize = 30,
+    this.subtitleFontSize = 15,
+    this.logoBottomSpacing = AppSizes.spacingXL,
+    this.showLogo = true,
   });
 
   @override
@@ -24,18 +34,19 @@ class AuthHeader extends StatelessWidget {
 
     return Column(
       children: [
-        AnimatedLogo(
-          assetPath: logoPath,
-          size: 115,
-        ),
-
-        const SizedBox(height: AppSizes.spacingXL),
+        if (showLogo) ...[
+          AnimatedLogo(
+            assetPath: logoPath,
+            size: logoSize,
+          ),
+          SizedBox(height: logoBottomSpacing),
+        ],
 
         Text(
           title,
           textAlign: TextAlign.center,
           style: GoogleFonts.poppins(
-            fontSize: 30,
+            fontSize: titleFontSize,
             fontWeight: FontWeight.w700,
             color: isDark
                 ? Colors.white
@@ -54,7 +65,7 @@ class AuthHeader extends StatelessWidget {
             subtitle,
             textAlign: TextAlign.center,
             style: GoogleFonts.inter(
-              fontSize: 15,
+              fontSize: subtitleFontSize,
               fontWeight: FontWeight.w400,
               color: isDark
                   ? Colors.white70

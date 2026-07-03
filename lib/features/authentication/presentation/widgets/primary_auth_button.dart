@@ -8,12 +8,14 @@ class PrimaryAuthButton extends StatefulWidget {
   final String text;
   final VoidCallback? onPressed;
   final bool isLoading;
+  final double height;
 
   const PrimaryAuthButton({
     super.key,
     required this.text,
     required this.onPressed,
     this.isLoading = false,
+    this.height = AppSizes.buttonHeight,
   });
 
   @override
@@ -39,7 +41,7 @@ class _PrimaryAuthButtonState extends State<PrimaryAuthButton> {
             : null,
         onTapCancel: () => setState(() => _pressed = false),
         child: Container(
-          height: AppSizes.buttonHeight,
+          height: widget.height,
           decoration: BoxDecoration(
             gradient: enabled
                 ? AppColors.primaryGradient

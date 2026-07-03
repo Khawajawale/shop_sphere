@@ -81,8 +81,8 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    final keyboardOpen =
-        MediaQuery.of(context).viewInsets.bottom > 0;
+    final isCompact =
+        MediaQuery.sizeOf(context).height < 760;
 
     return AnimatedGradientBackground(
       child: Scaffold(
@@ -91,134 +91,122 @@ class _LoginPageState extends State<LoginPage> {
 
         body: SafeArea(
           child: GestureDetector(
-            onTap: () =>
-                FocusScope.of(context).unfocus(),
+            onTap: () => FocusScope.of(context).unfocus(),
 
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                return SingleChildScrollView(
-                  physics: keyboardOpen
-                      ? const BouncingScrollPhysics()
-                      : const NeverScrollableScrollPhysics(),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                children: [
+                  SizedBox(height: isCompact ? 8 : 16),
 
-                  padding: EdgeInsets.only(
-                    left: 24,
-                    right: 24,
-                    top: 24,
-                    bottom:
-                        MediaQuery.of(context)
-                                .viewInsets
-                                .bottom +
-                            24,
+                  AuthHeader(
+                    logoPath: 'assets/images/logo.png',
+                    title: 'Welcome Back',
+                    subtitle:
+                        'Sign in to continue shopping with ShopSphere.',
+                    logoSize: 115,
+                    logoBottomSpacing: isCompact ? 28 : 40,
+                    titleFontSize: isCompact ? 28 : 30,
+                    subtitleFontSize: isCompact ? 14 : 15,
                   ),
 
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minHeight:
-                          constraints.maxHeight - 48,
-                    ),
+                  SizedBox(height: isCompact ? 20 : 32),
 
-                    child: IntrinsicHeight(
-                      child: Column(
-                        children: [
-                          const SizedBox(height: 10),
+                  Expanded(
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        return FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.topCenter,
+                          child: SizedBox(
+                            width: constraints.maxWidth,
+                            child: GlassContainer(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: isCompact ? 20 : 24,
+                                vertical: isCompact ? 20 : 24,
+                              ),
+                              child: Form(
+                                key: _formKey,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    AuthTextField(
+                                      controller: emailController,
+                                      label: 'Email Address',
+                                      hint: 'Enter your email',
+                                      prefixIcon:
+                                          Icons.email_outlined,
+                                      keyboardType:
+                                          TextInputType.emailAddress,
+                                      validator: emailValidator,
+                                    ),
 
-                          const AuthHeader(
-                            logoPath:
-                                'assets/images/logo.png',
-                            title: "Welcome Back",
-                            subtitle:
-                                "Sign in to continue shopping with ShopSphere.",
-                          ),
+                                    SizedBox(
+                                      height: isCompact ? 14 : 20,
+                                    ),
 
-                          const SizedBox(height: 40),
+                                    AuthPasswordField(
+                                      controller: passwordController,
+                                      label: 'Password',
+                                      hint: 'Enter your password',
+                                      validator: passwordValidator,
+                                    ),
 
-                          GlassContainer(
-                            child: Form(
-                              key: _formKey,
-                              child: Column(
-                                children: [
-                                  AuthTextField(
-                                    controller:
-                                        emailController,
-                                    label:
-                                        "Email Address",
-                                    hint:
-                                        "Enter your email",
-                                    prefixIcon:
-                                        Icons.email_outlined,
-                                    keyboardType:
-                                        TextInputType
-                                            .emailAddress,
-                                    validator:
-                                        emailValidator,
-                                  ),
-
-                                  const SizedBox(
-                                      height: 20),
-
-                                  AuthPasswordField(
-                                    controller:
-                                        passwordController,
-                                    label: "Password",
-                                    hint:
-                                        "Enter your password",
-                                    validator:
-                                        passwordValidator,
-                                  ),
-
-                                  Align(
-                                    alignment:
-                                        Alignment
-                                            .centerRight,
-                                    child: TextButton(
-                                      onPressed: () {
-                                        context.push(
-                                          RouteNames
-                                              .forgotPassword,
-                                        );
-                                      },
-                                      child: const Text(
-                                        "Forgot Password?",
+                                    Align(
+                                      alignment: Alignment.centerRight,
+                                      child: TextButton(
+                                        style: TextButton.styleFrom(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 4,
+                                          ),
+                                          minimumSize: Size.zero,
+                                          tapTargetSize:
+                                              MaterialTapTargetSize.shrinkWrap,
+                                        ),
+                                        onPressed: () {
+                                          context.push(
+                                            RouteNames.forgotPassword,
+                                          );
+                                        },
+                                        child: const Text(
+                                          'Forgot Password?',
+                                        ),
                                       ),
                                     ),
-                                  ),
 
-                                  const SizedBox(
-                                      height: 12),
+                                    SizedBox(
+                                      height: isCompact ? 6 : 12,
+                                    ),
 
-                                  PrimaryAuthButton(
-                                    text: "Sign In",
-                                    isLoading:
-                                        isLoading,
-                                    onPressed: login,
-                                  ),
-                                ],
+                                    PrimaryAuthButton(
+                                      text: 'Sign In',
+                                      isLoading: isLoading,
+                                      height: isCompact ? 54 : 58,
+                                      onPressed: login,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-
-                          const Spacer(),
-
-                          AuthFooter(
-                            text:
-                                "Don't have an account? ",
-                            actionText:
-                                "Create Account",
-                            onPressed: () {
-                              context.push(
-                                RouteNames.register,
-                              );
-                            },
-                          ),
-
-                          const SizedBox(height: 18),
-                        ],
-                      ),
+                        );
+                      },
                     ),
                   ),
-                );
-              },
+
+                  SizedBox(height: isCompact ? 10 : 14),
+
+                  AuthFooter(
+                    text: "Don't have an account? ",
+                    actionText: 'Create Account',
+                    onPressed: () {
+                      context.push(RouteNames.register);
+                    },
+                  ),
+
+                  SizedBox(height: isCompact ? 12 : 16),
+                ],
+              ),
             ),
           ),
         ),

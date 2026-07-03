@@ -51,6 +51,12 @@ class AuthTextField extends StatelessWidget {
           vertical: 20,
         ),
 
+        errorMaxLines: 1,
+        errorStyle: const TextStyle(
+          fontSize: 11,
+          height: 1.1,
+        ),
+
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(
             AppSizes.radius,
