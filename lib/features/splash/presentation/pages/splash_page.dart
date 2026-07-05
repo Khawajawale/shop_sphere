@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:shop_sphere/core/constants/app_assets.dart';
-import 'package:shop_sphere/core/services/firebase_service.dart';
-import 'package:shop_sphere/routes/route_names.dart';
+import '../../../../core/constants/app_assets.dart';
+import '../../../../core/session/session_manager.dart';
+import '../../../../core/session/session_status.dart';
+import '../../../../routes/route_names.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -13,6 +14,9 @@ class SplashPage extends StatefulWidget {
 }
 
 class _SplashPageState extends State<SplashPage> {
+  final SessionManager _sessionManager =
+      const SessionManager();
+
   @override
   void initState() {
     super.initState();
@@ -20,17 +24,33 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   Future<void> _initializeApp() async {
-    // Keep the splash screen visible for at least 3 seconds.
-    await Future.delayed(const Duration(seconds: 3));
+    await Future.delayed(
+      const Duration(seconds: 2),
+    );
 
     if (!mounted) return;
 
-    final bool hasAccount = FirebaseService.auth.currentUser != null;
+    final result =
+        await _sessionManager.checkSession();
 
-    if (hasAccount) {
-      context.go(RouteNames.home);
-    } else {
-      context.go(RouteNames.onboarding);
+    if (!mounted) return;
+
+    switch (result.status) {
+      case SessionStatus.onboardingRequired:
+        context.go(RouteNames.onboarding);
+        break;
+
+      case SessionStatus.unauthenticated:
+        context.go(RouteNames.login);
+        break;
+
+      case SessionStatus.emailNotVerified:
+        context.go(RouteNames.login);
+        break;
+
+      case SessionStatus.authenticated:
+        context.go(RouteNames.home);
+        break;
     }
   }
 
@@ -39,14 +59,18 @@ class _SplashPageState extends State<SplashPage> {
     return Scaffold(
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment:
+              MainAxisAlignment.center,
           children: [
             Image.asset(
               AppAssets.logo,
               width: 100,
               height: 100,
               errorBuilder: (_, _, _) {
-                return const Icon(Icons.store, size: 100);
+                return const Icon(
+                  Icons.store,
+                  size: 100,
+                );
               },
             ),
             const SizedBox(height: 20),
