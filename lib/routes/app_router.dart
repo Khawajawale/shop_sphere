@@ -35,7 +35,12 @@ final GoRouter appRouter = GoRouter(
 GoRoute(
   path: RouteNames.forgotPassword,
   builder: (context, state) => const ForgotPasswordPage(),
-),
+  ),
+GoRoute(
+  path: RouteNames.verifyEmail,
+  builder: (context, state) =>
+      const VerifyEmailPage(),
+      ),
     GoRoute(
       path: RouteNames.home,
       builder: (context, state) => const HomePage(),

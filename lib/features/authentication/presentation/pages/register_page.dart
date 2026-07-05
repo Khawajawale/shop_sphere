@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-
+import '../../../../routes/route_names.dart';
 import '../../../../core/validators/auth_validators.dart';
 import '../providers/auth_state_provider.dart';
 import '../widgets/auth_password_field.dart';
@@ -56,14 +56,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
       );
       return;
     }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Account created successfully!',
-        ),
-      ),
-    );
+    context.go(RouteNames.verifyEmail);
   }
 
   @override

@@ -9,6 +9,7 @@ import '../widgets/next_button.dart';
 import '../widgets/onboarding_card.dart';
 import '../widgets/page_indicator.dart';
 import '../widgets/skip_button.dart';
+import '../../../../core/storage/app_preferences.dart';
 
 class OnboardingPage extends ConsumerStatefulWidget {
   const OnboardingPage({super.key});
@@ -33,18 +34,23 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
     super.dispose();
   }
 
-  void _goToLogin() {
-    context.go(RouteNames.login);
+  Future<void> _goToLogin() async {
+  await AppPreferences.setOnboardingCompleted(true);
+
+  if (!mounted) return;
+
+  context.go(RouteNames.login);
   }
 
   Future<void> _onNextPressed(int currentPage) async {
-    final isLastPage = currentPage == onboardingPages.length - 1;
+  final isLastPage =
+      currentPage == onboardingPages.length - 1;
 
-    if (isLastPage) {
-      _goToLogin();
-    } else {
-      controller.nextPage(currentPage);
-    }
+  if (isLastPage) {
+    await _goToLogin();
+  } else {
+    controller.nextPage(currentPage);
+  }
   }
 
   @override

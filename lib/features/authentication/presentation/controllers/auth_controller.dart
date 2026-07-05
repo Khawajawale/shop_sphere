@@ -134,4 +134,24 @@ class AuthController extends StateNotifier<AuthState> {
       return false;
     }
   }
+
+  Future<void> resendVerificationEmail() async {
+    state = state.copyWith(
+      isLoading: true,
+      errorMessage: null,
+    );
+
+    try {
+      await repository.sendEmailVerification();
+
+      state = state.copyWith(
+        isLoading: false,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: e.toString(),
+      );
+    }
+  }
 }
