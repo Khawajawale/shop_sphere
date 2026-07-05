@@ -23,4 +23,8 @@ abstract class AuthRepository {
   Future<AppUser?> getCurrentUser();
 
   Stream<AppUser?> authStateChanges();
+
+  Future<bool> reloadAndCheckEmailVerification();
+  
+  Future<void> reloadCurrentUser();
 }

@@ -1,30 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-
-import '../../../../core/widgets/animated_gradient_background.dart';
-import '../../../../core/widgets/glass_container.dart';
 import '../../../../routes/route_names.dart';
-
-import '../widgets/auth_footer.dart';
-import '../widgets/auth_header.dart';
+import '../providers/auth_state_provider.dart';
 import '../widgets/auth_password_field.dart';
+import '../widgets/auth_scaffold.dart';
 import '../widgets/auth_text_field.dart';
 import '../widgets/primary_auth_button.dart';
+import '../../../../core/validators/auth_validators.dart';
 
-class LoginPage extends StatefulWidget {
+class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  ConsumerState<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends ConsumerState<LoginPage> {
   final _formKey = GlobalKey<FormState>();
 
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-
-  bool isLoading = false;
 
   @override
   void dispose() {
@@ -33,58 +29,55 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  String? emailValidator(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return 'Please enter your email';
-    }
-
-    final emailRegex = RegExp(
-      r'^[^@]+@[^@]+\.[^@]+',
-    );
-
-    if (!emailRegex.hasMatch(value.trim())) {
-      return 'Enter a valid email';
-    }
-
-    return null;
-  }
-
-  String? passwordValidator(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter your password';
-    }
-
-    if (value.length < 6) {
-      return 'Password must be at least 6 characters';
-    }
-
-    return null;
-  }
-
   Future<void> login() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
 
-    setState(() => isLoading = true);
+    FocusScope.of(context).unfocus();
 
-    // Firebase login will be connected later.
-
-    await Future.delayed(
-      const Duration(seconds: 1),
-    );
+    await ref.read(authControllerProvider.notifier).login(
+          email: emailController.text.trim(),
+          password: passwordController.text.trim(),
+        );
 
     if (!mounted) return;
 
-    setState(() => isLoading = false);
+    final authState = ref.read(authControllerProvider);
+
+    if (authState.errorMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(authState.errorMessage!),
+        ),
+      );
+      return;
+    }
+
+    if (authState.isAuthenticated) {
+      context.go(RouteNames.home);
+    }
   }
 
-  Widget _buildLoginForm({required bool isCompact}) {
-    return GlassContainer(
-      padding: EdgeInsets.symmetric(
-        horizontal: isCompact ? 20 : 24,
-        vertical: isCompact ? 20 : 24,
-      ),
+  @override
+  Widget build(BuildContext context) {
+    final authState = ref.watch(authControllerProvider);
+
+    final isCompact =
+        MediaQuery.of(context).size.height < 760;
+
+    return AuthScaffold(
+      title: 'Welcome Back',
+      subtitle:
+          'Sign in to continue shopping with ShopSphere.',
+
+      footerText: "Don't have an account? ",
+      footerActionText: 'Create Account',
+
+      onFooterPressed: () {
+        context.push(RouteNames.register);
+      },
+
       child: Form(
         key: _formKey,
         child: Column(
@@ -96,7 +89,7 @@ class _LoginPageState extends State<LoginPage> {
               hint: 'Enter your email',
               prefixIcon: Icons.email_outlined,
               keyboardType: TextInputType.emailAddress,
-              validator: emailValidator,
+              validator: AuthValidators.validateEmail,
             ),
 
             SizedBox(height: isCompact ? 14 : 20),
@@ -105,21 +98,18 @@ class _LoginPageState extends State<LoginPage> {
               controller: passwordController,
               label: 'Password',
               hint: 'Enter your password',
-              validator: passwordValidator,
+              validator: AuthValidators.validatePassword,
             ),
 
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
                 onPressed: () {
                   context.push(RouteNames.forgotPassword);
                 },
-                child: const Text('Forgot Password?'),
+                child: const Text(
+                  'Forgot Password?',
+                ),
               ),
             ),
 
@@ -127,95 +117,11 @@ class _LoginPageState extends State<LoginPage> {
 
             PrimaryAuthButton(
               text: 'Sign In',
-              isLoading: isLoading,
+              isLoading: authState.isLoading,
               height: isCompact ? 54 : 58,
               onPressed: login,
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final mediaQuery = MediaQuery.of(context);
-    final isCompact = mediaQuery.size.height < 760;
-    final keyboardOpen = mediaQuery.viewInsets.bottom > 0;
-
-    return AnimatedGradientBackground(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        resizeToAvoidBottomInset: true,
-
-        body: SafeArea(
-          child: GestureDetector(
-            onTap: () => FocusScope.of(context).unfocus(),
-
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: keyboardOpen
-                  ? Column(
-                      children: [
-                        Expanded(
-                          child: SingleChildScrollView(
-                            reverse: true,
-                            physics: const ClampingScrollPhysics(),
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: _buildLoginForm(isCompact: isCompact),
-                          ),
-                        ),
-                      ],
-                    )
-                  : Column(
-                      children: [
-                        SizedBox(height: isCompact ? 8 : 16),
-
-                        AuthHeader(
-                          logoPath: 'assets/images/logo.png',
-                          title: 'Welcome Back',
-                          subtitle:
-                              'Sign in to continue shopping with ShopSphere.',
-                          logoSize: 115,
-                          logoBottomSpacing: isCompact ? 28 : 40,
-                          titleFontSize: isCompact ? 28 : 30,
-                          subtitleFontSize: isCompact ? 14 : 15,
-                        ),
-
-                        SizedBox(height: isCompact ? 20 : 32),
-
-                        Expanded(
-                          child: LayoutBuilder(
-                            builder: (context, constraints) {
-                              return FittedBox(
-                                fit: BoxFit.scaleDown,
-                                alignment: Alignment.topCenter,
-                                child: SizedBox(
-                                  width: constraints.maxWidth,
-                                  child: _buildLoginForm(
-                                    isCompact: isCompact,
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-
-                        SizedBox(height: isCompact ? 10 : 14),
-
-                        AuthFooter(
-                          text: "Don't have an account? ",
-                          actionText: 'Create Account',
-                          onPressed: () {
-                            context.push(RouteNames.register);
-                          },
-                        ),
-
-                        SizedBox(height: isCompact ? 12 : 16),
-                      ],
-                    ),
-            ),
-          ),
         ),
       ),
     );

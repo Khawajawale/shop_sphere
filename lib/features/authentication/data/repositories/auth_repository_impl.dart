@@ -22,6 +22,7 @@ class AuthRepositoryImpl implements AuthRepository {
     );
 
     final firebaseUser = credential.user!;
+
     await firebaseUser.updateDisplayName(name);
 
     final user = UserModel(
@@ -98,5 +99,27 @@ class AuthRepositoryImpl implements AuthRepository {
     return remoteDataSource.authStateChanges().asyncMap((_) async {
       return getCurrentUser();
     });
+  }
+
+  // --------------------------------------------------------
+  // Email Verification
+  // --------------------------------------------------------
+
+  @override
+  Future<void> reloadCurrentUser() async {
+    final user = FirebaseService.auth.currentUser;
+
+    if (user != null) {
+      await user.reload();
+    }
+  }
+
+  @override
+  Future<bool> reloadAndCheckEmailVerification() async {
+    await reloadCurrentUser();
+
+    final user = FirebaseService.auth.currentUser;
+
+    return user?.emailVerified ?? false;
   }
 }
