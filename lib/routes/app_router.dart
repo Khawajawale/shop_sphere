@@ -43,7 +43,8 @@ GoRoute(
       ),
     GoRoute(
       path: RouteNames.home,
-      builder: (context, state) => const HomePage(),
+      builder: (context, state) => 
+      const HomePage(),
     ),
   ],
 );
