@@ -1,5 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/services/analytics_service.dart';
+import '../../../../core/services/messaging_service.dart';
+import '../../../../core/security/safe_error_message.dart';
 import '../../domain/entities/app_user.dart';
 import '../../domain/repositories/auth_repository.dart';
 import 'auth_state.dart';
@@ -25,6 +28,10 @@ class AuthController extends StateNotifier<AuthState> {
         password: password,
       );
 
+      await AnalyticsService.setUserId(user.uid);
+      await AnalyticsService.logLogin(method: 'email');
+      await MessagingService.syncTokenForCurrentUser();
+
       state = state.copyWith(
         isLoading: false,
         user: user,
@@ -32,7 +39,7 @@ class AuthController extends StateNotifier<AuthState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: e.toString(),
+        errorMessage: SafeErrorMessage.from(e, fallback: SafeErrorMessage.authFailed),
       );
     }
   }
@@ -56,6 +63,10 @@ class AuthController extends StateNotifier<AuthState> {
 
       await repository.sendEmailVerification();
 
+      await AnalyticsService.setUserId(user.uid);
+      await AnalyticsService.logSignUp(method: 'email');
+      await MessagingService.syncTokenForCurrentUser();
+
       state = state.copyWith(
         isLoading: false,
         user: user,
@@ -63,13 +74,14 @@ class AuthController extends StateNotifier<AuthState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: e.toString(),
+        errorMessage: SafeErrorMessage.from(e, fallback: SafeErrorMessage.authFailed),
       );
     }
   }
 
   Future<void> logout() async {
     await repository.logout();
+    await AnalyticsService.setUserId(null);
 
     state = const AuthState();
   }
@@ -93,13 +105,18 @@ class AuthController extends StateNotifier<AuthState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: e.toString(),
+        errorMessage: SafeErrorMessage.from(e, fallback: SafeErrorMessage.authFailed),
       );
     }
   }
 
   Future<void> loadCurrentUser() async {
     final user = await repository.getCurrentUser();
+
+    if (user != null) {
+      await AnalyticsService.setUserId(user.uid);
+      await MessagingService.syncTokenForCurrentUser();
+    }
 
     state = state.copyWith(
       user: user,
@@ -128,7 +145,7 @@ class AuthController extends StateNotifier<AuthState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: e.toString(),
+        errorMessage: SafeErrorMessage.from(e, fallback: SafeErrorMessage.authFailed),
       );
 
       return false;
@@ -150,8 +167,37 @@ class AuthController extends StateNotifier<AuthState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: e.toString(),
+        errorMessage: SafeErrorMessage.from(e, fallback: SafeErrorMessage.authFailed),
       );
+    }
+  }
+
+  Future<bool> updateProfile({
+    required String name,
+    String? phone,
+  }) async {
+    state = state.copyWith(
+      isLoading: true,
+      errorMessage: null,
+    );
+
+    try {
+      final user = await repository.updateProfile(
+        name: name,
+        phone: phone,
+      );
+
+      state = state.copyWith(
+        isLoading: false,
+        user: user,
+      );
+      return true;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: SafeErrorMessage.from(e, fallback: SafeErrorMessage.authFailed),
+      );
+      return false;
     }
   }
 }

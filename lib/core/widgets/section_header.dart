@@ -5,7 +5,9 @@ import '../constants/app_sizes.dart';
 
 class SectionHeader extends StatelessWidget {
   final String title;
+
   final String? actionText;
+
   final VoidCallback? onActionPressed;
 
   const SectionHeader({
@@ -18,9 +20,11 @@ class SectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSizes.md,
-        vertical: AppSizes.sm,
+      padding: const EdgeInsets.fromLTRB(
+        AppSizes.md,
+        AppSizes.lg,
+        AppSizes.md,
+        AppSizes.sm,
       ),
       child: Row(
         children: [
@@ -28,20 +32,32 @@ class SectionHeader extends StatelessWidget {
             child: Text(
               title,
               style: const TextStyle(
-                fontSize: 22,
+                fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: AppColors.textPrimary,
+                letterSpacing: -.4,
               ),
             ),
           ),
+
           if (actionText != null)
-            TextButton(
+            TextButton.icon(
               onPressed: onActionPressed,
-              child: Text(
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.primary,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
+              ),
+              icon: const Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 14,
+              ),
+              label: Text(
                 actionText!,
                 style: const TextStyle(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),

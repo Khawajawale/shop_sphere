@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../../../../core/auth/user_role.dart';
 import '../../domain/entities/app_user.dart';
 
 class UserModel extends AppUser {
@@ -11,6 +12,7 @@ class UserModel extends AppUser {
     super.photoUrl,
     required super.emailVerified,
     required super.createdAt,
+    super.role,
   });
 
   /// Create a UserModel from Firestore document
@@ -29,6 +31,7 @@ class UserModel extends AppUser {
       createdAt:
           (data['createdAt'] as Timestamp?)?.toDate() ??
               DateTime.now(),
+      role: UserRole.fromString(data['role'] as String?),
     );
   }
 
@@ -41,6 +44,7 @@ class UserModel extends AppUser {
       'photoUrl': photoUrl,
       'emailVerified': emailVerified,
       'createdAt': Timestamp.fromDate(createdAt),
+      'role': role.value,
     };
   }
 
@@ -53,6 +57,7 @@ class UserModel extends AppUser {
     String? photoUrl,
     bool? emailVerified,
     DateTime? createdAt,
+    UserRole? role,
   }) {
     return UserModel(
       uid: uid ?? this.uid,
@@ -63,6 +68,7 @@ class UserModel extends AppUser {
       emailVerified:
           emailVerified ?? this.emailVerified,
       createdAt: createdAt ?? this.createdAt,
+      role: role ?? this.role,
     );
   }
 }

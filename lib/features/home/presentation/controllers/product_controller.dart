@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/services/performance_service.dart';
+import '../../../../core/security/safe_error_message.dart';
 import '../../domain/repositories/product_repository.dart';
 import 'product_state.dart';
 
@@ -18,21 +20,23 @@ class ProductController
     );
 
     try {
-      final featured =
-          await repository.getFeaturedProducts();
+      await PerformanceService.traceVoid(
+        'load_home_products',
+        () async {
+          final featured = await repository.getFeaturedProducts();
+          final products = await repository.getAllProducts();
 
-      final products =
-          await repository.getAllProducts();
-
-      state = state.copyWith(
-        isLoading: false,
-        featuredProducts: featured,
-        allProducts: products,
+          state = state.copyWith(
+            isLoading: false,
+            featuredProducts: featured,
+            allProducts: products,
+          );
+        },
       );
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: e.toString(),
+        errorMessage: SafeErrorMessage.generic,
       );
     }
   }

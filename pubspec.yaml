@@ -1,5 +1,5 @@
 name: shop_sphere
-description: "A new Flutter project."
+description: "ShopSphere — Premium Flutter e-commerce application."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -53,6 +53,10 @@ dependencies:
   firebase_messaging: ^16.0.0
   firebase_analytics: ^12.0.0
   firebase_crashlytics: ^5.0.0
+  firebase_app_check: ^0.4.0
+  firebase_remote_config: ^6.0.0
+  firebase_performance: ^0.11.0
+  cloud_functions: ^6.3.3
 
   # -----------------------
   # Network
@@ -89,12 +93,17 @@ dependencies:
   permission_handler: ^12.0.1
   logger: ^2.6.1
   equatable: ^2.0.7
+  package_info_plus: ^8.3.0
+  flutter_dotenv: ^5.2.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  integration_test:
+    sdk: flutter
 
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
 
   build_runner: ^2.6.0
   freezed: ^3.2.0
@@ -111,11 +120,19 @@ flutter:
   uses-material-design: true
 
   assets:
+    - .env
     - assets/images/
+    - assets/images/categories/
     - assets/images/onboarding/
     - assets/icons/
     - assets/animations/
-    - assets/lottie/
+    - assets/seed/
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: assets/icons/app_icon.png
+  remove_alpha_ios: true
 
   # To add assets to your application, add an assets section, like this:
   # assets:

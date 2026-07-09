@@ -21,10 +21,11 @@ class PriceSection extends StatelessWidget {
       return Text(
         '\$${price.toStringAsFixed(2)}',
         style: const TextStyle(
-          fontSize: 22,
+          fontSize: 20,
           fontWeight: FontWeight.w800,
           color: AppColors.primary,
           letterSpacing: -0.3,
+          height: 1.1,
         ),
       );
     }
@@ -42,14 +43,15 @@ class PriceSection extends StatelessWidget {
         Text(
           '\$${currentPrice.toStringAsFixed(2)}',
           style: const TextStyle(
-            fontSize: 22,
+            fontSize: 20,
             fontWeight: FontWeight.w800,
             color: AppColors.primary,
             letterSpacing: -0.3,
+            height: 1.1,
           ),
         ),
 
-        const SizedBox(height: 6),
+        const SizedBox(height: 4),
 
         //--------------------------------------------------
         // Original Price + Save Badge
@@ -60,7 +62,7 @@ class PriceSection extends StatelessWidget {
             Text(
               '\$${price.toStringAsFixed(2)}',
               style: const TextStyle(
-                fontSize: 14,
+                fontSize: 13,
                 color: AppColors.textSecondary,
                 decoration: TextDecoration.lineThrough,
                 decorationThickness: 2,
@@ -86,7 +88,7 @@ class PriceSection extends StatelessWidget {
                 style: const TextStyle(
                   color: AppColors.discount,
                   fontWeight: FontWeight.w700,
-                  fontSize: 11,
+                  fontSize: 10,
                   letterSpacing: 0.3,
                 ),
               ),

@@ -1,4 +1,5 @@
 import '../../domain/entities/product.dart';
+import '../../../orders/data/utils/order_mapper.dart';
 
 class ProductModel extends Product {
   const ProductModel({
@@ -36,7 +37,7 @@ class ProductModel extends Product {
       rating: (data['rating'] ?? 0).toDouble(),
       reviewCount: data['reviewCount'] ?? 0,
       featured: data['featured'] ?? false,
-      createdAt: DateTime.parse(data['createdAt']),
+      createdAt: parseOrderDate(data['createdAt']),
     );
   }
 

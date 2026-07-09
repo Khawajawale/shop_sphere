@@ -27,4 +27,9 @@ abstract class AuthRepository {
   Future<bool> reloadAndCheckEmailVerification();
   
   Future<void> reloadCurrentUser();
+
+  Future<AppUser> updateProfile({
+    required String name,
+    String? phone,
+  });
 }

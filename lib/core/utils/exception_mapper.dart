@@ -43,8 +43,8 @@ class ExceptionMapper {
         );
 
       default:
-        return AuthException(
-          e.message ?? 'Authentication failed.',
+        return const AuthException(
+          'Authentication failed.',
         );
     }
   }

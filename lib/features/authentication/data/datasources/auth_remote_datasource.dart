@@ -149,8 +149,7 @@ class AuthRemoteDataSource {
         return 'This account has been disabled.';
 
       default:
-        return e.message ??
-            'Authentication failed. Please try again.';
+        return 'Authentication failed. Please try again.';
     }
   }
 }

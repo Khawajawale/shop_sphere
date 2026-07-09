@@ -1,3 +1,4 @@
+import 'package:shop_sphere/core/security/input_validators.dart';
 import 'package:shop_sphere/core/services/firebase_service.dart';
 
 import '../../domain/entities/app_user.dart';
@@ -38,7 +39,10 @@ class AuthRepositoryImpl implements AuthRepository {
     await FirebaseService.firestore
         .collection('users')
         .doc(firebaseUser.uid)
-        .set(user.toFirestore());
+        .set({
+      ...user.toFirestore(),
+      'role': 'customer',
+    });
 
     return user;
   }
@@ -121,5 +125,42 @@ class AuthRepositoryImpl implements AuthRepository {
     final user = FirebaseService.auth.currentUser;
 
     return user?.emailVerified ?? false;
+  }
+
+  @override
+  Future<AppUser> updateProfile({
+    required String name,
+    String? phone,
+  }) async {
+    final nameError = InputValidators.validateName(name);
+    if (nameError != null) {
+      throw Exception(nameError);
+    }
+    final phoneError = InputValidators.validatePhone(phone);
+    if (phoneError != null) {
+      throw Exception(phoneError);
+    }
+
+    final firebaseUser = FirebaseService.auth.currentUser;
+    if (firebaseUser == null) {
+      throw Exception('Not authenticated');
+    }
+
+    await firebaseUser.updateDisplayName(name);
+
+    await FirebaseService.firestore
+        .collection('users')
+        .doc(firebaseUser.uid)
+        .update({
+      'name': name,
+      'phone': phone,
+    });
+
+    final snapshot = await FirebaseService.firestore
+        .collection('users')
+        .doc(firebaseUser.uid)
+        .get();
+
+    return UserModel.fromFirestore(snapshot);
   }
 }

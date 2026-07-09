@@ -1,3 +1,5 @@
+import '../../../../core/auth/user_role.dart';
+
 class AppUser {
   final String uid;
   final String name;
@@ -6,6 +8,7 @@ class AppUser {
   final String? photoUrl;
   final bool emailVerified;
   final DateTime createdAt;
+  final UserRole role;
 
   const AppUser({
     required this.uid,
@@ -15,5 +18,6 @@ class AppUser {
     this.photoUrl,
     required this.emailVerified,
     required this.createdAt,
+    this.role = UserRole.customer,
   });
 }

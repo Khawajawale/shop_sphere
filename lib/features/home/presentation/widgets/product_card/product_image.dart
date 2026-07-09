@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../../core/constants/app_colors.dart';
@@ -6,11 +7,13 @@ import '../../../../../core/constants/app_sizes.dart';
 class ProductImage extends StatefulWidget {
   final List<String> images;
   final bool outOfStock;
+  final double height;
 
   const ProductImage({
     super.key,
     required this.images,
     required this.outOfStock,
+    this.height = AppSizes.productImageHeight,
   });
 
   @override
@@ -18,8 +21,6 @@ class ProductImage extends StatefulWidget {
 }
 
 class _ProductImageState extends State<ProductImage> {
-  bool _loaded = false;
-
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -33,116 +34,51 @@ class _ProductImageState extends State<ProductImage> {
               top: Radius.circular(18),
             ),
             child: SizedBox(
-              height: AppSizes.productImageHeight,
+              height: widget.height,
               width: double.infinity,
               child: widget.images.isEmpty
                   ? _placeholder()
-                  : Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        Container(
-                          color: Colors.grey.shade100,
-                        ),
-
-                        AnimatedScale(
-                          scale: _loaded ? 1 : 1.08,
-                          duration: const Duration(
-                            milliseconds: 450,
+                  : RepaintBoundary(
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          Container(color: Colors.grey.shade100),
+                          CachedNetworkImage(
+                            imageUrl: widget.images.first,
+                            fit: BoxFit.cover,
+                            memCacheWidth: 600,
+                            placeholder: (_, _) => _loadingPlaceholder(),
+                            errorWidget: (_, _, _) => _placeholder(),
                           ),
-                          curve: Curves.easeOut,
-                          child: AnimatedOpacity(
-                            opacity: _loaded ? 1 : 0,
-                            duration: const Duration(
-                              milliseconds: 350,
-                            ),
-                            child: Image.network(
-                              widget.images.first,
-                              fit: BoxFit.cover,
-                              frameBuilder: (
-                                context,
-                                child,
-                                frame,
-                                wasSynchronouslyLoaded,
-                              ) {
-                                if (wasSynchronouslyLoaded) {
-                                  _loaded = true;
-                                  return child;
-                                }
-
-                                if (frame != null && !_loaded) {
-                                  WidgetsBinding.instance
-                                      .addPostFrameCallback((_) {
-                                    if (mounted) {
-                                      setState(() {
-                                        _loaded = true;
-                                      });
-                                    }
-                                  });
-                                }
-
-                                return child;
-                              },
-                              loadingBuilder: (
-                                context,
-                                child,
-                                progress,
-                              ) {
-                                if (progress == null) {
-                                  return child;
-                                }
-
-                                return Stack(
-                                  fit: StackFit.expand,
-                                  children: [
-                                    _loadingPlaceholder(),
-
-                                    const Center(
-                                      child:
-                                          CircularProgressIndicator(
-                                        strokeWidth: 2.5,
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              },
-                              errorBuilder:
-                                  (_, _, _) =>
-                                      _placeholder(),
-                            ),
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
             ),
           ),
         ),
-
-        //----------------------------------------------------------
-        // Out of Stock Overlay
-        //----------------------------------------------------------
-
         if (widget.outOfStock)
           Positioned.fill(
-            child: Container(
-              color: Colors.black45,
-              alignment: Alignment.center,
+            child: Semantics(
+              label: 'Out of stock',
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.error,
-                  borderRadius:
-                      BorderRadius.circular(30),
-                ),
-                child: const Text(
-                  "OUT OF STOCK",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.1,
+                color: Colors.black45,
+                alignment: Alignment.center,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.error,
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: const Text(
+                    'OUT OF STOCK',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.1,
+                    ),
                   ),
                 ),
               ),

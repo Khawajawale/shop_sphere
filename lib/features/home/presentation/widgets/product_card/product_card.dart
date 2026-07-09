@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../core/constants/accessibility_labels.dart';
 import '../../../../../core/constants/app_shadows.dart';
 import '../../../../../core/constants/app_sizes.dart';
 import '../../../domain/entities/product.dart';
@@ -18,6 +19,7 @@ class ProductCard extends StatefulWidget {
 
   final bool isFavorite;
   final AddToCartState cartState;
+  final bool compact;
 
   const ProductCard({
     super.key,
@@ -27,6 +29,7 @@ class ProductCard extends StatefulWidget {
     this.onWishlist,
     this.isFavorite = false,
     this.cartState = AddToCartState.idle,
+    this.compact = false,
   });
 
   @override
@@ -38,11 +41,24 @@ class _ProductCardState extends State<ProductCard> {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedScale(
-      scale: _pressed ? 0.985 : 1,
-      duration: const Duration(milliseconds: 120),
-      curve: Curves.easeOut,
-      child: AnimatedContainer(
+    final imageHeight = widget.compact ? 110.0 : AppSizes.productImageHeight;
+    final contentPadding = widget.compact ? 10.0 : 12.0;
+    final titleFontSize = widget.compact ? 14.0 : 16.0;
+    final spacing = widget.compact ? 4.0 : 6.0;
+
+    return Semantics(
+      container: true,
+      button: true,
+      label: AccessibilityLabels.productCard(
+        widget.product.name,
+        widget.product.currentPrice,
+      ),
+      child: RepaintBoundary(
+        child: AnimatedScale(
+          scale: _pressed ? 0.985 : 1,
+          duration: const Duration(milliseconds: 120),
+          curve: Curves.easeOut,
+          child: AnimatedContainer(
         duration: const Duration(milliseconds: 220),
         curve: Curves.easeOut,
         decoration: BoxDecoration(
@@ -80,6 +96,7 @@ class _ProductCardState extends State<ProductCard> {
                       images: widget.product.images,
                       outOfStock:
                           !widget.product.inStock,
+                      height: imageHeight,
                     ),
 
                     Positioned(
@@ -111,9 +128,7 @@ class _ProductCardState extends State<ProductCard> {
 
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.all(
-                      AppSizes.md,
-                    ),
+                    padding: EdgeInsets.all(contentPadding),
                     child: Column(
                       crossAxisAlignment:
                           CrossAxisAlignment.start,
@@ -123,17 +138,17 @@ class _ProductCardState extends State<ProductCard> {
                           maxLines: 2,
                           overflow:
                               TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 17,
+                          style: TextStyle(
+                            fontSize: titleFontSize,
                             fontWeight:
                                 FontWeight.w700,
-                            height: 1.3,
+                            height: 1.2,
                             letterSpacing: 0.2,
                           ),
                         ),
 
-                        const SizedBox(
-                          height: AppSizes.sm,
+                        SizedBox(
+                          height: spacing,
                         ),
 
                         RatingSection(
@@ -144,8 +159,8 @@ class _ProductCardState extends State<ProductCard> {
                               .reviewCount,
                         ),
 
-                        const SizedBox(
-                          height: AppSizes.sm,
+                        SizedBox(
+                          height: spacing,
                         ),
 
                         PriceSection(
@@ -177,8 +192,10 @@ class _ProductCardState extends State<ProductCard> {
               ],
             ),
           ),
+          ),
         ),
       ),
+    ),
     );
   }
 }

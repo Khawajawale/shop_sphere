@@ -51,7 +51,7 @@ class AppSizes {
 
   static const double buttonHeight = 56;
 
-  static const double productImageHeight = 170;
+  static const double productImageHeight = 145;
 
   static const double bannerHeight = 180;
 

@@ -28,7 +28,7 @@ class AddToCartButton extends StatelessWidget {
 
     return SizedBox(
       width: double.infinity,
-      height: 46,
+      height: 44,
       child: AnimatedSwitcher(
         duration: const Duration(milliseconds: 250),
         child: ElevatedButton.icon(
