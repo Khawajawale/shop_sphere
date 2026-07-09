@@ -6,13 +6,18 @@ class AppCheckService {
   AppCheckService._();
 
   static Future<void> initialize() async {
-    await FirebaseAppCheck.instance.activate(
-      providerAndroid: kDebugMode
-          ? const AndroidDebugProvider()
-          : const AndroidPlayIntegrityProvider(),
-      providerApple: kDebugMode
-          ? const AppleDebugProvider()
-          : const AppleAppAttestProvider(),
-    );
+    try {
+      await FirebaseAppCheck.instance.activate(
+        providerAndroid: kDebugMode
+            ? const AndroidDebugProvider()
+            : const AndroidPlayIntegrityProvider(),
+        providerApple: kDebugMode
+            ? const AppleDebugProvider()
+            : const AppleAppAttestProvider(),
+      );
+    } catch (e, stackTrace) {
+      debugPrint('FirebaseAppCheck activate failed: $e');
+      debugPrintStack(stackTrace: stackTrace);
+    }
   }
 }

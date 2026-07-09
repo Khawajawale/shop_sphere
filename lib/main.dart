@@ -17,11 +17,23 @@ Future<void> main() async {
 
   await EnvConfig.load();
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    // If Firebase app already exists, ignore the error!
+    debugPrint('Firebase initializeApp error (probably duplicate app): $e');
+  }
 
-  await FirebaseBootstrap.initialize();
+  try {
+    await FirebaseBootstrap.initialize();
+  } catch (e, stackTrace) {
+    debugPrint('FirebaseBootstrap.initialize() error: $e');
+    debugPrintStack(stackTrace: stackTrace);
+  }
+
+  // Always initialize these, regardless of Firebase errors!
   await AppPreferences.init();
   await AppVersionService.load();
 
@@ -39,13 +51,7 @@ Future<void> main() async {
   }
   await prefs.setString('last_app_version', AppVersionService.fullVersion);
 
-  runApp(
-    const ProviderScope(
-      child: FcmListener(
-        child: ShopSphere(),
-      ),
-    ),
-  );
+  runApp(const ProviderScope(child: FcmListener(child: ShopSphere())));
 
   try {
     await ReleaseMonitoringService.onAppLaunched();

@@ -125,7 +125,6 @@ flutter:
     - assets/images/categories/
     - assets/images/onboarding/
     - assets/icons/
-    - assets/animations/
     - assets/seed/
 
 flutter_launcher_icons:

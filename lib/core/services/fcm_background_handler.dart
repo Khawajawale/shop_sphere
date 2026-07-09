@@ -36,6 +36,7 @@ Future<void> _persistBackgroundMessage(RemoteMessage message) async {
 
 /// Reads and clears pending FCM messages stored while app was terminated.
 Future<List<AppNotification>> consumePendingFcmMessages() async {
+  await AppPreferences.init();
   final prefs = AppPreferences.instance;
   final raw = prefs.getString(_pendingFcmKey);
   if (raw == null) return [];

@@ -15,8 +15,18 @@ class FirebaseBootstrap {
 
   static Future<void> initialize() async {
     ImageCacheConfig.configure();
-    await AppCheckService.initialize();
-    await RemoteConfigService.initialize();
+    try {
+      await AppCheckService.initialize();
+    } catch (e, stackTrace) {
+      debugPrint('AppCheckService.initialize() error: $e');
+      debugPrintStack(stackTrace: stackTrace);
+    }
+    try {
+      await RemoteConfigService.initialize();
+    } catch (e, stackTrace) {
+      debugPrint('RemoteConfigService.initialize() error: $e');
+      debugPrintStack(stackTrace: stackTrace);
+    }
 
     if (!kDebugMode) {
       FlutterError.onError =
@@ -26,16 +36,31 @@ class FirebaseBootstrap {
         return true;
       };
     } else {
-      await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
+      try {
+        await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
+      } catch (e, stackTrace) {
+        debugPrint('FirebaseCrashlytics set enabled false error: $e');
+        debugPrintStack(stackTrace: stackTrace);
+      }
     }
 
-    await MessagingService.initialize();
+    try {
+      await MessagingService.initialize();
+    } catch (e, stackTrace) {
+      debugPrint('MessagingService.initialize() error: $e');
+      debugPrintStack(stackTrace: stackTrace);
+    }
 
     // Enable Firestore offline persistence
-    FirebaseFirestore.instance.settings = const Settings(
-      persistenceEnabled: true,
-      cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
-    );
+    try {
+      FirebaseFirestore.instance.settings = const Settings(
+        persistenceEnabled: true,
+        cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+      );
+    } catch (e, stackTrace) {
+      debugPrint('FirebaseFirestore settings error: $e');
+      debugPrintStack(stackTrace: stackTrace);
+    }
   }
 
   static Future<void> afterFirstFrame() async {
